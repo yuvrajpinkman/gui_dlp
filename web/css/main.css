@@ -1,0 +1,210 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #0f0f0f;
+    color: #e0e0e0;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ── Top bar ── */
+.top-bar {
+    background: #1a1a1a;
+    padding: 14px 20px;
+    border-bottom: 1px solid #2a2a2a;
+}
+.app-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ff4444;
+    letter-spacing: 1px;
+}
+
+/* ── URL row ── */
+.url-row {
+    display: flex;
+    gap: 10px;
+    padding: 14px 20px;
+    background: #141414;
+    border-bottom: 1px solid #2a2a2a;
+    align-items: center;
+}
+.url-row input {
+    flex: 1;
+    padding: 10px 14px;
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #e0e0e0;
+    font-size: 14px;
+    outline: none;
+    transition: border 0.2s;
+}
+.url-row input:focus { border-color: #ff4444; }
+.url-row button {
+    padding: 10px 26px;
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+.url-row button:hover { background: #cc3333; }
+
+/* ── Mode tabs ── */
+.mode-tabs {
+    display: flex;
+    background: #111;
+    border-bottom: 1px solid #2a2a2a;
+    padding: 0 20px;
+}
+.mode-tab {
+    padding: 12px 24px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: #666;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: -1px;
+}
+.mode-tab:hover  { color: #ccc; }
+.mode-tab.active { color: #ff4444; border-bottom-color: #ff4444; }
+
+/* ── Mode panels ── */
+.mode-panel {
+    padding: 16px 20px;
+    background: #111;
+    border-bottom: 2px solid #2a2a2a;
+}
+.mode-panel.hidden { display: none; }
+
+/* ── Queue controls ── */
+.queue-controls {
+    display: flex;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #0f0f0f;
+    border-bottom: 1px solid #1e1e1e;
+}
+.btn-sm {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.btn-sm.danger { background: #3a1a1a; color: #ff6666; border: 1px solid #5a2a2a; }
+.btn-sm.danger:hover { background: #ff4444; color: white; }
+.btn-sm.muted  { background: #1e1e1e; color: #888; border: 1px solid #2e2e2e; }
+.btn-sm.muted:hover  { background: #2a2a2a; color: #ccc; }
+
+/* ── Cards container ── */
+#cards { padding: 16px 20px; display: flex; flex-direction: column; gap: 14px; }
+
+/* placeholder width was here */
+    margin: auto;
+    overflow: hidden;
+}
+
+.preset-section, .advanced-section {
+    background: #ffffff;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.preset-section h2, .advanced-section h2 {
+    color: #35424a;
+}
+
+.button {
+    display: inline-block;
+    font-size: 16px;
+    color: #ffffff;
+    background: #35424a;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.button:hover {
+    background: #2c3e50;
+}
+
+.input-group {
+    margin: 10px 0;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.input-group input, .input-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.tabs {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+}
+
+.tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    background: #eaeaea;
+    border-radius: 5px;
+}
+
+.tab.active {
+    background: #35424a;
+    color: #ffffff;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: #ffffff;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    border-radius: 5px;
+}
+
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #35424a;
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    display: none;
+}

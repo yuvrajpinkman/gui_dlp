@@ -1,0 +1,180 @@
+/* ── Download card ── */
+.card {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-left: 3px solid #4488ff;
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    transition: border 0.2s, opacity 0.2s;
+}
+.card.active    { border-left-color: #4488ff; }
+.card.completed { border-left-color: #44bb44; }
+.card.failed    { border-left-color: #ff4444; }
+.card.cancelled { border-left-color: #666; }
+.card.paused    { border-left-color: #ffaa22; }
+
+.card-thumb {
+    width: 180px;
+    height: 102px;
+    object-fit: cover;
+    border-radius: 7px;
+    flex-shrink: 0;
+}
+.card-thumb-placeholder {
+    width: 180px;
+    height: 102px;
+    background: #222;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #444;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.card-body { flex: 1; min-width: 0; }
+
+.card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #e8e8e8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 5px;
+}
+.card-meta { font-size: 12px; color: #666; margin-bottom: 10px; }
+.card-meta span { margin-right: 12px; }
+
+.progress-track {
+    background: #2a2a2a;
+    border-radius: 4px;
+    height: 7px;
+    overflow: hidden;
+    margin-bottom: 7px;
+}
+.progress-fill {
+    height: 100%;
+    background: #4488ff;
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.3s;
+}
+.card.completed .progress-fill { background: #44bb44; }
+.card.failed    .progress-fill { background: #ff4444; }
+.card.paused    .progress-fill { background: #ffaa22; }
+
+.card-stats { font-size: 12px; color: #888; display: flex; gap: 16px; }
+
+.card-status-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 4px;
+    margin-top: 8px;
+    display: inline-block;
+}
+.badge-queued      { background: #2a2a1a; color: #aaaa44; }
+.badge-downloading { background: #1a2a4a; color: #4488ff; }
+.badge-completed   { background: #1a3a1a; color: #44bb44; }
+.badge-failed      { background: #3a1a1a; color: #ff6666; }
+.badge-cancelled   { background: #2a2a2a; color: #888; }
+.badge-paused      { background: #2a1e00; color: #ffaa22; }
+
+/* ── Card action buttons ── */
+.card-actions { display: flex; flex-direction: column; gap: 7px; flex-shrink: 0; }
+.card-actions button {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.15s, color 0.15s;
+}
+.btn-cancel { background: #2a1a1a; color: #ff6666; border: 1px solid #4a2a2a !important; }
+.btn-pause  { background: #2a1e00; color: #ffaa22; border: 1px solid #4a3800 !important; }
+.btn-remove { background: #1e1e1e; color: #888;    border: 1px solid #2e2e2e !important; }
+.btn-delete { background: #2a1a1a; color: #ff4444; border: 1px solid #4a1a1a !important; }
+.btn-cancel:hover { background: #ff4444; color: #fff; }
+.btn-pause:hover  { background: #ffaa22; color: #000; }
+.btn-remove:hover { background: #333;    color: #ccc; }
+.btn-delete:hover { background: #ff4444; color: #fff; }
+
+/* ── Toast ── */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 18px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 1000;
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+.toast-info    { background: #1a2a4a; color: #4488ff; border: 1px solid #2a3a5a; }
+.toast-success { background: #1a3a1a; color: #44bb44; border: 1px solid #2a4a2a; }
+.toast-error   { background: #3a1a1a; color: #ff6666; border: 1px solid #5a2a2a; }
+.toast.fade-out { opacity: 0; }
+
+.button:hover {
+    background-color: #45a049;
+}
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+}
+
+.toast {
+    visibility: hidden; /* Hidden by default */
+    min-width: 250px; /* Minimum width */
+    margin-left: -125px; /* Center the toast */
+    background-color: #333; /* Black background color */
+    color: #fff; /* White text color */
+    text-align: center; /* Centered text */
+    border-radius: 2px; /* Rounded corners */
+    padding: 16px; /* Padding */
+    position: fixed; /* Sit on top */
+    z-index: 1; /* Sit on top */
+    left: 50%; /* Center the toast */
+    bottom: 30px; /* 30px from the bottom */
+    font-size: 17px; /* Font size */
+}
+
+.toast.show {
+    visibility: visible; /* Show the toast */
+    animation: fadein 0.5s, fadeout 0.5s 2.5s; /* Fade in and out */
+}
+
+@keyframes fadein {
+    from {bottom: 0; opacity: 0;} 
+    to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadeout {
+    from {bottom: 30px; opacity: 1;} 
+    to {bottom: 0; opacity: 0;}
+}
