@@ -110,10 +110,6 @@ body {
 /* ── Cards container ── */
 #cards { padding: 16px 20px; display: flex; flex-direction: column; gap: 14px; }
 
-/* placeholder width was here */
-    margin: auto;
-    overflow: hidden;
-}
 
 .preset-section, .advanced-section {
     background: #ffffff;
