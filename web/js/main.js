@@ -49,6 +49,20 @@ function _clearPreview() {
     _previewUrl  = '';
 }
 
+function _updateClearBtn() {
+    const btn = document.getElementById('url-clear-btn');
+    const val = document.getElementById('url-input')?.value || '';
+    if (btn) btn.style.display = val.length ? 'block' : 'none';
+}
+
+function clearUrlInput() {
+    const input = document.getElementById('url-input');
+    if (input) { input.value = ''; input.focus(); }
+    _updateClearBtn();
+    _clearPreview();
+    clearTimeout(_previewTimer);
+}
+
 // ── Start download ────────────────────────────────────────────────────────────
 
 function startDownload() {
@@ -64,6 +78,7 @@ function startDownload() {
     }
 
     document.getElementById('url-input').value = '';
+    _updateClearBtn();
     _clearPreview();
 }
 
@@ -137,6 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Debounced URL preview on input
     input.addEventListener('input', () => {
+        _updateClearBtn();
         clearTimeout(_previewTimer);
         const val = input.value.trim();
         if (!val || !_isUrl(val)) {
@@ -151,6 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Paste event — trigger preview immediately after paste settles
     input.addEventListener('paste', () => {
+        setTimeout(_updateClearBtn, 50);
         clearTimeout(_previewTimer);
         _previewTimer = setTimeout(() => {
             const val = input.value.trim();

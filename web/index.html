@@ -43,6 +43,32 @@
             accent-color: #ff4444; width: 13px; height: 13px; cursor: pointer;
         }
         .playlist-toggle:hover { color: #aaa; }
+
+        /* ── URL input wrapper with clear button ── */
+        .url-input-wrap {
+            position: relative;
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+        .url-input-wrap input {
+            width: 100%;
+            padding-right: 32px; /* room for X */
+        }
+        .url-clear-btn {
+            position: absolute;
+            right: 8px;
+            background: none;
+            border: none;
+            color: #444;
+            font-size: 16px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 2px 4px;
+            display: none;
+            transition: color 0.15s;
+        }
+        .url-clear-btn:hover { color: #ccc; }
     </style>
 </head>
 <body>
@@ -53,7 +79,10 @@
 </div>
 
 <div class="url-row">
-    <input id="url-input" type="text" placeholder="Paste a YouTube, Vimeo, or any supported URL…" />
+    <div class="url-input-wrap">
+        <input id="url-input" type="text" placeholder="Paste a YouTube, Vimeo, or any supported URL…" />
+        <button class="url-clear-btn" id="url-clear-btn" onclick="clearUrlInput()" title="Clear">&times;</button>
+    </div>
     <label class="playlist-toggle">
         <input type="checkbox" id="playlist-chk" />
         Playlist
