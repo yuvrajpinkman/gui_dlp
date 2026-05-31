@@ -1,4 +1,4 @@
-// This file handles communication with the backend API, including functions to start, cancel, pause, and resume downloads.
+// Handles all communication with the Python backend via pywebview bridge.
 
 // Queue calls until pywebview signals it is ready
 let _pvReady = false;
@@ -37,5 +37,15 @@ const api = {
 
     deleteFile: function(dl_id) {
         return _call(() => window.pywebview.api.delete_file(dl_id));
-    }
+    },
+
+    // Returns {title, thumbnail, filesize} for a single URL
+    getInfo: function(url) {
+        return _call(() => window.pywebview.api.get_info(url));
+    },
+
+    // Returns [{title, url, thumbnail, duration}, ...] for a playlist URL
+    getPlaylistInfo: function(url) {
+        return _call(() => window.pywebview.api.get_playlist_info(url));
+    },
 };

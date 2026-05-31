@@ -33,6 +33,15 @@ class API:
     def delete_file(self, dl_id):
         return dm.delete_file(dl_id)
 
+    def get_info(self, url):
+        """Return title, thumbnail, filesize for a single URL (used for preview)."""
+        title, thumbnail, filesize = dm.get_info(url)
+        return {"title": title, "thumbnail": thumbnail, "filesize": filesize}
+
+    def get_playlist_info(self, url):
+        """Return list of playlist entries for a given URL."""
+        return dm.get_playlist_info(url)
+
 
 api = API()
 

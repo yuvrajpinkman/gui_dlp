@@ -8,162 +8,183 @@
     <link rel="stylesheet" href="css/presets.css">
     <link rel="stylesheet" href="css/advanced.css">
     <link rel="stylesheet" href="css/components.css">
+    <style>
+        #url-preview {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 20px;
+            background: #111;
+            border-bottom: 1px solid #1e1e1e;
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .preview-thumb {
+            width: 80px; height: 45px; object-fit: cover;
+            border-radius: 4px; flex-shrink: 0;
+        }
+        .preview-thumb-placeholder {
+            width: 80px; height: 45px; background: #1a1a1a;
+            border-radius: 4px; flex-shrink: 0;
+        }
+        .preview-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .preview-title {
+            font-size: 12px; font-weight: 600; color: #bbb;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 600px;
+        }
+        .preview-sub  { font-size: 10px; color: #444; }
+        .preview-loading { font-size: 11px; color: #444; padding: 4px 0; }
+        .playlist-toggle {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 12px; color: #555; cursor: pointer;
+            white-space: nowrap; user-select: none;
+        }
+        .playlist-toggle input[type="checkbox"] {
+            accent-color: #ff4444; width: 13px; height: 13px; cursor: pointer;
+        }
+        .playlist-toggle:hover { color: #aaa; }
+    </style>
 </head>
 <body>
 
-<!-- Top bar -->
 <div class="top-bar">
     <span class="app-title">GUI&#8209;DLP</span>
+    <span class="app-subtitle">powered by yt-dlp</span>
 </div>
 
-<!-- URL input -->
 <div class="url-row">
-    <input id="url-input" type="text" placeholder="Paste video URL here…" />
+    <input id="url-input" type="text" placeholder="Paste a YouTube, Vimeo, or any supported URL…" />
+    <label class="playlist-toggle">
+        <input type="checkbox" id="playlist-chk" />
+        Playlist
+    </label>
     <button id="download-btn" onclick="startDownload()">Download</button>
 </div>
 
-<!-- Mode switcher tabs — user picks ONE mode -->
+<div id="url-preview"></div>
+
 <div class="mode-tabs">
     <button class="mode-tab active" id="tab-simple"   onclick="switchMode('simple')">Simple</button>
     <button class="mode-tab"        id="tab-advanced" onclick="switchMode('advanced')">Advanced</button>
 </div>
 
-<!-- ══ Simple presets panel ══ -->
 <div id="panel-simple" class="mode-panel">
     <div class="preset-grid">
         <label class="preset-card">
             <input type="radio" name="preset" value="best" checked />
-            <span class="preset-inner"><span class="preset-name">Best Quality</span></span>
+            <span class="preset-inner">
+                <span class="preset-name">Best Quality</span>
+                <span class="preset-desc">Highest available res + audio</span>
+            </span>
         </label>
         <label class="preset-card">
             <input type="radio" name="preset" value="1080p" />
-            <span class="preset-inner"><span class="preset-name">1080p Video</span></span>
+            <span class="preset-inner">
+                <span class="preset-name">1080p Video</span>
+                <span class="preset-desc">Full HD, balanced size</span>
+            </span>
         </label>
         <label class="preset-card">
             <input type="radio" name="preset" value="mp3" />
-            <span class="preset-inner"><span class="preset-name">Audio MP3</span></span>
+            <span class="preset-inner">
+                <span class="preset-name">Audio MP3</span>
+                <span class="preset-desc">Music / podcasts</span>
+            </span>
         </label>
         <label class="preset-card">
             <input type="radio" name="preset" value="aac" />
-            <span class="preset-inner"><span class="preset-name">Audio AAC</span></span>
+            <span class="preset-inner">
+                <span class="preset-name">Audio AAC</span>
+                <span class="preset-desc">Higher quality audio</span>
+            </span>
         </label>
         <label class="preset-card">
             <input type="radio" name="preset" value="fast" />
-            <span class="preset-inner"><span class="preset-name">Fast Download</span></span>
+            <span class="preset-inner">
+                <span class="preset-name">Fast Download</span>
+                <span class="preset-desc">Lowest res, quickest</span>
+            </span>
         </label>
         <label class="preset-card">
             <input type="radio" name="preset" value="mkv" />
-            <span class="preset-inner"><span class="preset-name">MKV Remux</span></span>
+            <span class="preset-inner">
+                <span class="preset-name">MKV Remux</span>
+                <span class="preset-desc">Lossless container swap</span>
+            </span>
         </label>
     </div>
 </div>
 
-<!-- ══ Advanced panel ══ -->
 <div id="panel-advanced" class="mode-panel hidden">
-
     <div class="adv-panel-toggle" onclick="toggleAdvancedPanel()">
         <span>Advanced Options</span>
         <span id="adv-panel-chevron">▼ Hide</span>
     </div>
-
     <div id="adv-panel-body">
 
-    <!-- 1 : Video Quality -->
     <div class="adv-section">
         <div class="adv-section-header" onclick="toggleSection('sec-video')">
-            <span>Video Quality</span>
-            <span class="adv-chevron" id="chev-sec-video">▼</span>
+            <span>Video Quality</span><span class="adv-chevron" id="chev-sec-video">▼</span>
         </div>
         <div class="adv-section-body" id="sec-video">
             <div class="quality-grid">
-                <label class="quality-card">
-                    <input type="radio" name="adv-quality" value="" checked onchange="onQualityChange()" />
-                    <span class="quality-inner"><span class="quality-name">Best (auto)</span></span>
-                </label>
-                <label class="quality-card">
-                    <input type="radio" name="adv-quality" value="4k" onchange="onQualityChange()" />
-                    <span class="quality-inner"><span class="quality-name">4K / 2160p</span></span>
-                </label>
-                <label class="quality-card">
-                    <input type="radio" name="adv-quality" value="1440p" onchange="onQualityChange()" />
-                    <span class="quality-inner"><span class="quality-name">1440p</span></span>
-                </label>
-                <label class="quality-card">
-                    <input type="radio" name="adv-quality" value="1080p" onchange="onQualityChange()" />
-                    <span class="quality-inner"><span class="quality-name">1080p</span></span>
-                </label>
-                <label class="quality-card">
-                    <input type="radio" name="adv-quality" value="720p" onchange="onQualityChange()" />
-                    <span class="quality-inner"><span class="quality-name">720p</span></span>
-                </label>
-                <label class="quality-card">
-                    <input type="radio" name="adv-quality" value="480p" onchange="onQualityChange()" />
-                    <span class="quality-inner"><span class="quality-name">480p</span></span>
-                </label>
-                <label class="quality-card">
-                    <input type="radio" name="adv-quality" value="no-video" onchange="onQualityChange()" />
-                    <span class="quality-inner"><span class="quality-name">No video</span></span>
-                </label>
+                <label class="quality-card"><input type="radio" name="adv-quality" value="" checked onchange="onQualityChange()" /><span class="quality-inner"><span class="quality-name">Best (auto)</span></span></label>
+                <label class="quality-card"><input type="radio" name="adv-quality" value="4k" onchange="onQualityChange()" /><span class="quality-inner"><span class="quality-name">4K / 2160p</span></span></label>
+                <label class="quality-card"><input type="radio" name="adv-quality" value="1440p" onchange="onQualityChange()" /><span class="quality-inner"><span class="quality-name">1440p</span></span></label>
+                <label class="quality-card"><input type="radio" name="adv-quality" value="1080p" onchange="onQualityChange()" /><span class="quality-inner"><span class="quality-name">1080p</span></span></label>
+                <label class="quality-card"><input type="radio" name="adv-quality" value="720p" onchange="onQualityChange()" /><span class="quality-inner"><span class="quality-name">720p</span></span></label>
+                <label class="quality-card"><input type="radio" name="adv-quality" value="480p" onchange="onQualityChange()" /><span class="quality-inner"><span class="quality-name">480p</span></span></label>
+                <label class="quality-card"><input type="radio" name="adv-quality" value="no-video" onchange="onQualityChange()" /><span class="quality-inner"><span class="quality-name">No video</span></span></label>
             </div>
         </div>
     </div>
 
-    <!-- 2 : Video Codec (hidden when No video is selected) -->
     <div class="adv-section" id="section-vcodec">
         <div class="adv-section-header" onclick="toggleSection('sec-vcodec')">
-            <span>Video Codec</span>
-            <span class="adv-chevron" id="chev-sec-vcodec">▼</span>
+            <span>Video Codec</span><span class="adv-chevron" id="chev-sec-vcodec">▼</span>
         </div>
         <div class="adv-section-body" id="sec-vcodec">
             <div class="chips">
-                <label class="chip"><input type="radio" name="adv-vcodec" value=""     checked /><span>Auto</span></label>
+                <label class="chip"><input type="radio" name="adv-vcodec" value="" checked /><span>Auto</span></label>
                 <label class="chip"><input type="radio" name="adv-vcodec" value="h264" /><span>H.264</span></label>
                 <label class="chip"><input type="radio" name="adv-vcodec" value="h265" /><span>H.265 / HEVC</span></label>
-                <label class="chip"><input type="radio" name="adv-vcodec" value="av1"  /><span>AV1</span></label>
-                <label class="chip"><input type="radio" name="adv-vcodec" value="vp9"  /><span>VP9</span></label>
+                <label class="chip"><input type="radio" name="adv-vcodec" value="av1" /><span>AV1</span></label>
+                <label class="chip"><input type="radio" name="adv-vcodec" value="vp9" /><span>VP9</span></label>
             </div>
         </div>
     </div>
 
-    <!-- 3 : Video Format (container) -->
     <div class="adv-section" id="section-vformat">
         <div class="adv-section-header" onclick="toggleSection('sec-vformat')">
-            <span>Video Format</span>
-            <span class="adv-chevron" id="chev-sec-vformat">▼</span>
+            <span>Video Format</span><span class="adv-chevron" id="chev-sec-vformat">▼</span>
         </div>
         <div class="adv-section-body" id="sec-vformat">
             <div class="chips">
-                <label class="chip"><input type="radio" name="adv-vformat" value=""     checked /><span>Auto</span></label>
-                <label class="chip"><input type="radio" name="adv-vformat" value="mp4"  /><span>MP4</span></label>
-                <label class="chip"><input type="radio" name="adv-vformat" value="mkv"  /><span>MKV</span></label>
+                <label class="chip"><input type="radio" name="adv-vformat" value="" checked /><span>Auto</span></label>
+                <label class="chip"><input type="radio" name="adv-vformat" value="mp4" /><span>MP4</span></label>
+                <label class="chip"><input type="radio" name="adv-vformat" value="mkv" /><span>MKV</span></label>
                 <label class="chip"><input type="radio" name="adv-vformat" value="webm" /><span>WebM</span></label>
             </div>
         </div>
     </div>
 
-    <!-- 4 : Audio -->
     <div class="adv-section">
         <div class="adv-section-header" onclick="toggleSection('sec-audio')">
-            <span>Audio</span>
-            <span class="adv-chevron" id="chev-sec-audio">▼</span>
+            <span>Audio</span><span class="adv-chevron" id="chev-sec-audio">▼</span>
         </div>
         <div class="adv-section-body" id="sec-audio">
             <div class="chips">
                 <label class="chip" id="chip-audio-auto"><input type="radio" name="adv-audio" value="" checked onchange="onAudioChange()" /><span>Auto</span></label>
-                <label class="chip"><input type="radio" name="adv-audio" value="aac"  onchange="onAudioChange()" /><span>AAC</span></label>
-                <label class="chip"><input type="radio" name="adv-audio" value="mp3"  onchange="onAudioChange()" /><span>MP3</span></label>
+                <label class="chip"><input type="radio" name="adv-audio" value="aac" onchange="onAudioChange()" /><span>AAC</span></label>
+                <label class="chip"><input type="radio" name="adv-audio" value="mp3" onchange="onAudioChange()" /><span>MP3</span></label>
                 <label class="chip"><input type="radio" name="adv-audio" value="opus" onchange="onAudioChange()" /><span>Opus</span></label>
-                <label class="chip" title="YouTube has no FLAC source — re-encodes the lossy stream. Not true lossless."><input type="radio" name="adv-audio" value="flac" onchange="onAudioChange()" /><span>FLAC ⓘ</span></label>
+                <label class="chip" title="Not true lossless — re-encodes the lossy stream."><input type="radio" name="adv-audio" value="flac" onchange="onAudioChange()" /><span>FLAC ⓘ</span></label>
                 <label class="chip chip-danger" id="chip-audio-none"><input type="radio" name="adv-audio" value="none" onchange="onAudioChange()" /><span>No audio</span></label>
             </div>
             <div id="audio-bitrate-row" style="display:none; margin-top:12px">
-                <div class="chips-group-label">Bitrate
-                    <span class="chips-group-hint" title="YouTube has its own default bitrate per video. Selecting a higher bitrate than what YouTube provides will re-encode but won't recover quality that isn't in the source.">
-                        ⓘ selecting above YouTube's source bitrate won't improve quality
-                    </span>
-                </div>
+                <div class="chips-group-label">Bitrate <span class="chips-group-hint" title="Higher than source bitrate won't improve quality.">ⓘ won't improve above source</span></div>
                 <div class="chips">
-                    <label class="chip"><input type="radio" name="adv-abitrate" value=""    checked /><span>Auto</span></label>
+                    <label class="chip"><input type="radio" name="adv-abitrate" value="" checked /><span>Auto</span></label>
                     <label class="chip"><input type="radio" name="adv-abitrate" value="128" /><span>128 kbps</span></label>
                     <label class="chip"><input type="radio" name="adv-abitrate" value="192" /><span>192 kbps</span></label>
                     <label class="chip"><input type="radio" name="adv-abitrate" value="256" /><span>256 kbps</span></label>
@@ -172,32 +193,28 @@
         </div>
     </div>
 
-    <!-- 4 : Subtitles & chapters -->
     <div class="adv-section">
         <div class="adv-section-header" onclick="toggleSection('sec-subs')">
-            <span>Subtitles &amp; Chapters</span>
-            <span class="adv-chevron" id="chev-sec-subs">▼</span>
+            <span>Subtitles &amp; Chapters</span><span class="adv-chevron" id="chev-sec-subs">▼</span>
         </div>
         <div class="adv-section-body" id="sec-subs">
             <div class="checks">
-                <label class="chk"><input type="checkbox" id="adv-write-subs"   /><span>Download subtitles</span></label>
-                <label class="chk"><input type="checkbox" id="adv-embed-subs"   /><span>Embed subtitles in file</span></label>
-                <label class="chk"><input type="checkbox" id="adv-chapters"     /><span>Add chapter markers</span></label>
+                <label class="chk"><input type="checkbox" id="adv-write-subs" /><span>Download subtitles</span></label>
+                <label class="chk"><input type="checkbox" id="adv-embed-subs" /><span>Embed subtitles in file</span></label>
+                <label class="chk"><input type="checkbox" id="adv-chapters" /><span>Add chapter markers</span></label>
                 <label class="chk"><input type="checkbox" id="adv-sponsorblock" /><span>SponsorBlock: skip sponsor segments</span></label>
-                <label class="chk"><input type="checkbox" id="adv-no-playlist"  /><span>Single video only (ignore playlist)</span></label>
+                <label class="chk"><input type="checkbox" id="adv-no-playlist" /><span>Single video only (ignore playlist)</span></label>
             </div>
         </div>
     </div>
 
-    <!-- Step 4 : Extra settings -->
     <div class="adv-section">
         <div class="adv-section-header" onclick="toggleSection('sec-extra')">
-            <span>Extra Settings</span>
-            <span class="adv-chevron" id="chev-sec-extra">▼</span>
+            <span>Extra Settings</span><span class="adv-chevron" id="chev-sec-extra">▼</span>
         </div>
         <div class="adv-section-body" id="sec-extra">
             <div class="checks extra-checks">
-                <label class="chk"><input type="checkbox" id="adv-thumb"    /><span>Embed thumbnail in file</span></label>
+                <label class="chk"><input type="checkbox" id="adv-thumb" /><span>Embed thumbnail in file</span></label>
                 <label class="chk"><input type="checkbox" id="adv-metadata" /><span>Embed metadata (title, artist…)</span></label>
             </div>
             <div class="adv-fields">
@@ -213,26 +230,23 @@
         </div>
     </div>
 
+    </div>
 </div>
 
-</div>
-
-<!-- Queue controls -->
 <div class="queue-controls">
     <button class="btn-sm danger" onclick="cancelAll()">Cancel All</button>
     <button class="btn-sm muted"  onclick="clearCompleted()">Clear Completed</button>
 </div>
 
-<!-- Download cards -->
 <div id="cards"></div>
 
 <script src="js/api.js"></script>
 <script src="js/downloads.js"></script>
 <script src="js/presets.js"></script>
 <script src="js/advanced.js"></script>
-<script src="js/components/tabs.js"></script>
-<script src="js/components/toast.js"></script>
-<script src="js/components/modal.js"></script>
+<script src="js/tabs.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/modal.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

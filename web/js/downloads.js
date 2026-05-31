@@ -1,13 +1,13 @@
 const downloads = {};
 
-function createCard(id, url, preset) {
+function createCard(id, url, preset, knownTitle, knownThumb) {
     const card        = document.createElement('div');
     card.className    = 'card active';
     card.id           = 'card-' + id;
     card.innerHTML    = `
         <div class="card-thumb-placeholder" id="thumb-${id}">No Thumbnail</div>
         <div class="card-body">
-            <div class="card-title"   id="title-${id}">Fetching info…</div>
+            <div class="card-title"   id="title-${id}">${knownTitle || 'Fetching info…'}</div>
             <div class="card-meta">
                 <span id="size-${id}">--</span>
                 <span id="preset-label-${id}">${PRESET_LABELS[preset] || preset}</span>
@@ -23,31 +23,39 @@ function createCard(id, url, preset) {
             <span class="card-status-badge badge-queued" id="badge-${id}">Queued</span>
         </div>
         <div class="card-actions" id="actions-${id}">
-            <button class="btn-cancel" onclick="cancelDownload(${id})">&#x2715; Cancel</button>
-            <button class="btn-pause"  onclick="togglePause(${id})" id="pause-btn-${id}">⏸ Pause</button>
+            <button class="btn-cancel" onclick="cancelDownload(${id})">Cancel</button>
+            <button class="btn-pause"  onclick="togglePause(${id})" id="pause-btn-${id}">Pause</button>
             <button class="btn-remove" onclick="removeCard(${id})">Remove</button>
-            <button class="btn-delete" onclick="deleteFile(${id})">&#x1F5D1; Delete File</button>
+            <button class="btn-delete" onclick="deleteFile(${id})">Delete File</button>
         </div>
     `;
     document.getElementById('cards').prepend(card);
     downloads[id] = { status: 'queued', paused: false };
+
+    // If we already know the thumbnail (e.g. from playlist preview), set it now
+    if (knownThumb) {
+        _setThumb(id, knownThumb);
+    }
+}
+
+function _setThumb(id, url) {
+    const thumbEl = document.getElementById('thumb-' + id);
+    if (!thumbEl || !url) return;
+    const img     = document.createElement('img');
+    img.src       = url;
+    img.className = 'card-thumb';
+    img.id        = 'thumb-' + id;
+    img.onerror   = () => { img.style.display = 'none'; };
+    thumbEl.replaceWith(img);
 }
 
 /* Called from Python via evaluate_js */
 function setInfo(id, title, thumbnailUrl, filesize) {
     const titleEl = document.getElementById('title-'  + id);
-    const thumbEl = document.getElementById('thumb-'  + id);
     const sizeEl  = document.getElementById('size-'   + id);
     if (titleEl) titleEl.textContent = title;
-    if (sizeEl)  sizeEl.textContent  = filesize ? 'max src: ' + formatBytes(filesize) : 'Unknown size';
-    if (thumbnailUrl && thumbEl) {
-        const img     = document.createElement('img');
-        img.src       = thumbnailUrl;
-        img.className = 'card-thumb';
-        img.id        = 'thumb-' + id;
-        img.onerror   = () => { img.style.display = 'none'; };
-        thumbEl.replaceWith(img);
-    }
+    if (sizeEl)  sizeEl.textContent  = filesize ? formatBytes(filesize) : 'Unknown size';
+    _setThumb(id, thumbnailUrl);
     setBadge(id, 'downloading');
     if (downloads[id]) downloads[id].status = 'downloading';
 }
@@ -59,7 +67,7 @@ function updateProgress(id, percent, speed, eta) {
     const p   = document.getElementById('percent-' + id);
     if (bar) bar.style.width  = percent.toFixed(1) + '%';
     if (s)   s.textContent    = 'Speed: ' + formatSpeed(speed);
-    if (e)   e.textContent    = 'ETA: '   + (eta ? eta + 's' : '--');
+    if (e)   e.textContent    = 'ETA: '   + formatETA(eta);
     if (p)   p.textContent    = percent.toFixed(1) + '%';
 }
 
@@ -105,13 +113,13 @@ function togglePause(id) {
     if (dl.paused) {
         api.resumeDownload(id);
         dl.paused       = false;
-        btn.textContent = '⏸ Pause';
+        btn.textContent = 'Pause';
         setCardState(id, 'active');
         setBadge(id, 'downloading');
     } else {
         api.pauseDownload(id);
         dl.paused       = true;
-        btn.textContent = '▶ Resume';
+        btn.textContent = 'Resume';
         setCardState(id, 'paused');
         setBadge(id, 'paused');
     }
@@ -128,7 +136,10 @@ function removeCard(id) {
 }
 
 function deleteFile(id) {
-    api.deleteFile(id).then(() => removeCard(id));
+    api.deleteFile(id).then(ok => {
+        if (!ok) showToast('Could not find file on disk — card removed.', 'error');
+        removeCard(id);
+    });
 }
 
 function cancelAll() {
@@ -164,6 +175,23 @@ function setBadge(id, state) {
 function setCardState(id, state) {
     const card = document.getElementById('card-' + id);
     if (card) card.className = 'card ' + state;
+}
+
+// ── Formatters ────────────────────────────────────────────────────────────────
+
+function formatETA(seconds) {
+    if (!seconds || seconds <= 0) return '--';
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    if (h > 0) {
+        return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+    if (m > 0) {
+        return `${m}:${String(s).padStart(2,'0')}`;
+    }
+    // Under a minute — show 1 decimal
+    return `${s.toFixed(1)}s`;
 }
 
 function formatBytes(b) {
