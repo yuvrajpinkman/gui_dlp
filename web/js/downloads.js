@@ -60,6 +60,11 @@ function setInfo(id, title, thumbnailUrl, filesize) {
     if (downloads[id]) downloads[id].status = 'downloading';
 }
 
+function setActualSize(id, bytes) {
+    const sizeEl = document.getElementById('size-' + id);
+    if (sizeEl) sizeEl.textContent = formatBytes(bytes) + ' total';
+}
+
 function updateProgress(id, percent, speed, eta) {
     const bar = document.getElementById('bar-'     + id);
     const s   = document.getElementById('speed-'   + id);
@@ -136,10 +141,27 @@ function removeCard(id) {
 }
 
 function deleteFile(id) {
-    api.deleteFile(id).then(ok => {
-        if (!ok) showToast('Could not find file on disk — card removed.', 'error');
-        removeCard(id);
-    });
+    const dl = downloads[id];
+    const wasActive = dl && ['downloading', 'queued', 'paused'].includes(dl.status);
+
+    const _doDelete = () => {
+        api.deleteFile(id).then(ok => {
+            if (wasActive) {
+                showToast(ok ? 'Download cancelled and partial file removed.' : 'Download cancelled — no partial file found.', ok ? 'info' : 'info');
+            } else if (!ok) {
+                showToast('File not found — it may have already been moved or deleted.', 'error');
+            }
+            removeCard(id);
+        });
+    };
+
+    if (wasActive) {
+        // Kill subprocess first, then wait 600ms for process to fully die before deleting
+        api.cancelDownload(id);
+        setTimeout(_doDelete, 600);
+    } else {
+        _doDelete();
+    }
 }
 
 function cancelAll() {

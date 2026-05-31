@@ -150,6 +150,10 @@ def download(url, preset, dl_id, window, extra_flags=None):
             progress  = json.loads(stripped)
             total     = progress.get("total_bytes") or progress.get("total_bytes_estimate", 0)
             if total:
+                # Push actual size to card on first non-zero total
+                if saved_files[dl_id].get("size_sent") != total:
+                    saved_files[dl_id]["size_sent"] = total
+                    window.evaluate_js(f"setActualSize({dl_id},{total})")
                 downloaded = progress.get("downloaded_bytes", 0)
                 percent    = (downloaded / total) * 100
                 speed      = progress.get("speed") or 0
@@ -192,41 +196,45 @@ def cancel(dl_id):
     paused.pop(dl_id, None)
     proc = processes.get(dl_id)
     if proc:
-        proc.terminate()
+        proc.kill()
+        try:
+            proc.wait(timeout=3)   # wait for process to fully die
+        except Exception:
+            pass
         processes.pop(dl_id, None)
 
 
 def delete_file(dl_id):
-    """Delete the file(s) yt-dlp actually wrote to disk for this download."""
+    """Delete the file(s) yt-dlp actually wrote to disk for this download,
+    including any partial .part files left by a mid-download cancel."""
     info = saved_files.get(dl_id)
     if not info:
         return False
 
     deleted = False
 
-    # Primary: delete every path we captured from yt-dlp output
+    # Primary: delete every tracked path, plus its .part variant
     for path_str in list(info.get("paths", [])):
-        p = Path(path_str)
-        if p.exists() and p.is_file():
-            try:
-                p.unlink()
-                deleted = True
-            except Exception:
-                pass
+        for candidate in [Path(path_str), Path(path_str + '.part')]:
+            if candidate.exists() and candidate.is_file():
+                try:
+                    candidate.unlink()
+                    deleted = True
+                except Exception:
+                    pass
 
-    # Fallback: if we didn't capture a path (e.g. very old yt-dlp),
-    # scan the save dir for files whose stem starts with the title (fuzzy)
+    # Fallback: scan save dir for files/part-files matching the title
     if not deleted:
         save_dir = Path(info["dir"])
         title    = info["title"]
         if save_dir.exists():
-            # yt-dlp replaces : / \ | ? * < > " with _ or - 
-            # so compare lowercased first 40 chars of stem vs title
             prefix = re.sub(r'[^\w\s]', '', title[:40]).lower().strip()
             for f in save_dir.iterdir():
                 if not f.is_file():
                     continue
-                stem_clean = re.sub(r'[^\w\s]', '', f.stem[:40]).lower().strip()
+                # match both completed files and .part files
+                stem = f.stem if f.suffix != '.part' else Path(f.stem).stem
+                stem_clean = re.sub(r'[^\w\s]', '', stem[:40]).lower().strip()
                 if stem_clean == prefix:
                     try:
                         f.unlink()
